@@ -154,7 +154,7 @@ build() {
   export PKG_CONFIG_PATH=$_stage_dir/lib/pkgconfig
 
   cd $srcdir/build-deps
-  cmake -B build_dir -S . -G Ninja \
+  cmake -B build_dir -S . -W no-dev -G Ninja \
     -D CMAKE_C_COMPILER=$(which gcc) \
     -D CMAKE_CXX_COMPILER=$(which g++) \
     -D CMAKE_AR=$(which ar) \
@@ -166,7 +166,7 @@ build() {
   cp -av "$srcdir/build-deps/ffmpeg_sources/AMF/amf/public/include/." "$_stage_dir/include/AMF"
   
   cd $srcdir/build-deps/ffmpeg_sources/SVT-AV1
-  cmake -B build_dir -S . -G Ninja \
+  cmake -B build_dir -S . -W no-dev -G Ninja \
     -DCMAKE_INSTALL_PREFIX="$_stage_dir" \
     -DCMAKE_BUILD_TYPE=Release \
     -DBUILD_APPS=OFF \
@@ -184,7 +184,7 @@ build() {
   make install
   
   cd $srcdir/build-deps/ffmpeg_sources/x265_git
-  cmake -B build_dir -S source -G Ninja \
+  cmake -B build_dir -S source -W no-dev -G Ninja \
     -DCMAKE_INSTALL_PREFIX="$_stage_dir" \
     -DCMAKE_BUILD_TYPE=Release \
     -DENABLE_CLI=OFF \
