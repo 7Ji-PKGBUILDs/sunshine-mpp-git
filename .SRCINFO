@@ -64,7 +64,7 @@ pkgbase = sunshine-mpp-git
 	source = git+https://code.videolan.org/videolan/x264.git
 	source = git+https://bitbucket.org/multicoreware/x265_git.git
 	source = git+https://gitlab.com/AOMediaCodec/SVT-AV1.git
-	source = mpp.patch::https://github.com/hbiyik/Sunshine/compare/0107ca44d7ecce3ce1c46102decdf891d81e6816...mpp.patch
+	source = mpp.patch::https://github.com/hbiyik/Sunshine/compare/8810c5ccdd3327521eb41a1a17999d87095423b8...mpp.patch
 	sha256sums = SKIP
 	sha256sums = SKIP
 	sha256sums = SKIP
@@ -88,6 +88,6 @@ pkgbase = sunshine-mpp-git
 	sha256sums = SKIP
 	sha256sums = SKIP
 	sha256sums = SKIP
-	sha256sums = 2dccb55c71c0966a7d07e2474f79987db14a0d655df6a6c1bb4063786bf64d02
+	sha256sums = 581aa3e23f24734a67130fa4482cd1fda32f556c579ce9ae59568443fd109dbe
 
 pkgname = sunshine-mpp-git

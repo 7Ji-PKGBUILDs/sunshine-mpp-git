@@ -1,6 +1,6 @@
 # Maintainer: Grey Christoforo <first name at last name dot net>
 
-_sunshine_base=0107ca44d7ecce3ce1c46102decdf891d81e6816
+_sunshine_base=8810c5ccdd3327521eb41a1a17999d87095423b8
 _sunshine_branch=mpp
 pkgname=sunshine-mpp-git
 pkgver=r2524.8810c5cc
@@ -102,7 +102,7 @@ sha256sums=('SKIP'
             'SKIP'
             'SKIP'
             'SKIP'
-            '2dccb55c71c0966a7d07e2474f79987db14a0d655df6a6c1bb4063786bf64d02')
+            '581aa3e23f24734a67130fa4482cd1fda32f556c579ce9ae59568443fd109dbe')
 
 pkgver() {
   cd $srcdir/Sunshine
@@ -239,7 +239,7 @@ build() {
 
   cmake -B build_dir -S . -W no-dev -G Ninja \
     -D FFMPEG_PREPARED_BINARIES="$_stage_dir" \
-    -D FFMPEG_PLATFORM_LIBRARIES="numa -lrockchip_mpp $_stage_dir/lib/libx264.a $_stage_dir/lib/libx265.a $_stage_dir/lib/libSvtAv1Enc.a" \
+    -D FFMPEG_PLATFORM_LIBRARIES="rockchip_mpp $_stage_dir/lib/libx264.a $_stage_dir/lib/libx265.a $_stage_dir/lib/libSvtAv1Enc.a -lnuma" \
     -D CMAKE_BUILD_TYPE=Release \
     -D CMAKE_INSTALL_PREFIX=/usr \
     -D SUNSHINE_EXECUTABLE_PATH=/usr/bin/sunshine \
