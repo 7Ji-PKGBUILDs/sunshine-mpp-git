@@ -53,7 +53,7 @@ provides=(sunshine)
 conflicts=(sunshine sunshine-git sunshine-bin)
 
 source=(
-"git+https://github.com/LizardByte/Sunshine.git#branch=master"
+"git+https://github.com/LizardByte/Sunshine.git#commit=8810c5ccdd3327521eb41a1a17999d87095423b8"
 git+https://github.com/flatpak/flatpak-builder-tools.git
 git+https://github.com/flathub/shared-modules
 "git+https://github.com/LizardByte/build-deps.git#commit=b2459cc3b1a8a6727c87b04d8c82f7a435b35165"
