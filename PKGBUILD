@@ -1,9 +1,12 @@
 # Maintainer: Grey Christoforo <first name at last name dot net>
 
-_sunshine_base=8810c5ccdd3327521eb41a1a17999d87095423b8
+_sunshine_base=ceea97479b81a813dc6185e642f20bceca055087
 _sunshine_branch=mpp
+_ffmpeg_base=ac494b8325cc9612a382e9762e1f4c7819009c0c
+_ffmpeg_branch=7.1
+
 pkgname=sunshine-mpp-git
-pkgver=r2524.8810c5cc
+pkgver=r2655.ceea9747
 pkgrel=1
 pkgdesc="Game Stream server for Moonlight, latest git"
 arch=('x86_64' 'aarch64')
@@ -53,10 +56,10 @@ provides=(sunshine)
 conflicts=(sunshine sunshine-git sunshine-bin)
 
 source=(
-"git+https://github.com/LizardByte/Sunshine.git#commit=8810c5ccdd3327521eb41a1a17999d87095423b8"
+"git+https://github.com/LizardByte/Sunshine.git"
 git+https://github.com/flatpak/flatpak-builder-tools.git
 git+https://github.com/flathub/shared-modules
-"git+https://github.com/LizardByte/build-deps.git#commit=b2459cc3b1a8a6727c87b04d8c82f7a435b35165"
+"git+https://github.com/LizardByte/build-deps.git"
 git+https://github.com/LizardByte/doxyconfig.git
 git+https://github.com/google/googletest
 git+https://github.com/games-on-whales/inputtino.git
@@ -71,12 +74,13 @@ git+https://github.com/LizardByte/Virtual-Gamepad-Emulation-Client.git
 git+https://gitlab.freedesktop.org/wayland/wayland-protocols.git
 git+https://gitlab.freedesktop.org/wlroots/wlr-protocols.git
 git+https://github.com/cgutman/enet.git
-"git+https://github.com/nyanmisaka/ffmpeg-rockchip.git#branch=6.1"
+git+https://github.com/FFmpeg/FFmpeg.git
 git+https://github.com/GPUOpen-LibrariesAndSDKs/AMF
 git+https://code.videolan.org/videolan/x264.git
 git+https://bitbucket.org/multicoreware/x265_git.git
 git+https://gitlab.com/AOMediaCodec/SVT-AV1.git
-mpp.patch::https://github.com/hbiyik/Sunshine/compare/${_sunshine_base}...${_sunshine_branch}.patch
+sunshine-mpp.patch::https://github.com/hbiyik/Sunshine/compare/${_sunshine_base}...${_sunshine_branch}.patch
+ffmpeg-mpp.patch::https://github.com/nyanmisaka/ffmpeg-rockchip/compare/${_ffmpeg_base}...${_ffmpeg_branch}.patch
 )
 
 sha256sums=('SKIP'
@@ -102,7 +106,8 @@ sha256sums=('SKIP'
             'SKIP'
             'SKIP'
             'SKIP'
-            '581aa3e23f24734a67130fa4482cd1fda32f556c579ce9ae59568443fd109dbe')
+            'SKIP'
+            'SKIP')
 
 pkgver() {
   cd $srcdir/Sunshine
@@ -111,16 +116,16 @@ pkgver() {
 
 prepare() {
   cd $srcdir/build-deps
-  git rm ffmpeg_sources/ffmpeg -f
-  rm -rf ffmpeg_sources/ffmpeg
-  ln -sf $srcdir/ffmpeg-rockchip ffmpeg_sources/ffmpeg
-  git config submodule.ffmpeg_sources/AMF.url "${srcdir}/AMF"
-  git config submodule.ffmpeg_sources/SVT-AV1.url "${srcdir}/SVT-AV1"
-  git config submodule.ffmpeg_sources/nv-codec-headers.url "${srcdir}/nv-codec-headers"
-  git config submodule.ffmpeg_sources/x264.url "${srcdir}/x264"
-  git config submodule.ffmpeg_sources/x265_git.url "${srcdir}/x265_git"        
+  git config submodule.third-party/FFmpeg/FFmpeg.url "${srcdir}/FFmpeg"
+  git config submodule.third-party/FFmpeg/AMF.url "${srcdir}/AMF"
+  git config submodule.third-party/FFmpeg/SVT-AV1.url "${srcdir}/SVT-AV1"
+  git config submodule.third-party/FFmpeg/nv-codec-headers.url "${srcdir}/nv-codec-headers"
+  git config submodule.third-party/FFmpeg/x264.url "${srcdir}/x264"
+  git config submodule.third-party/FFmpeg/x265_git.url "${srcdir}/x265_git"        
   git -c protocol.file.allow=always submodule init 
   git -c protocol.file.allow=always submodule update -f
+  git submodule foreach git clean -df
+  patch -p1 -N -d $srcdir/build-deps/third-party/FFmpeg/FFmpeg -i ${srcdir}/ffmpeg-mpp.patch
   
   cd $srcdir/Sunshine
   git rm third-party/build-deps -f
@@ -137,7 +142,7 @@ prepare() {
   git config submodule.third-party/wlr-protocols.url "${srcdir}/wlr-protocols"
   git -c protocol.file.allow=always submodule init
   git -c protocol.file.allow=always submodule update -f
-  patch -p1 -N -i ../mpp.patch
+  patch -p1 -N -i ../sunshine-mpp.patch
 
   cd $srcdir/Sunshine/third-party/moonlight-common-c
   git config submodule.enet.url "${srcdir}/enet"
@@ -163,9 +168,9 @@ build() {
   cmake --build build_dir
   cmake --install build_dir
 
-  cp -av "$srcdir/build-deps/ffmpeg_sources/AMF/amf/public/include/." "$_stage_dir/include/AMF"
+  cp -av "$srcdir/build-deps/third-party/FFmpeg/AMF/amf/public/include/." "$_stage_dir/include/AMF"
   
-  cd $srcdir/build-deps/ffmpeg_sources/SVT-AV1
+  cd $srcdir/build-deps/third-party/FFmpeg/SVT-AV1
   cmake -B build_dir -S . -W no-dev -G Ninja \
     -DCMAKE_INSTALL_PREFIX="$_stage_dir" \
     -DCMAKE_BUILD_TYPE=Release \
@@ -176,14 +181,14 @@ build() {
   cmake --build build_dir
   cmake --install build_dir
   
-  cd $srcdir/build-deps/ffmpeg_sources/x264
+  cd $srcdir/build-deps/third-party/FFmpeg/x264
   ./configure \
     --prefix="$_stage_dir" \
     --disable-cli \
     --enable-static
   make install
   
-  cd $srcdir/build-deps/ffmpeg_sources/x265_git
+  cd $srcdir/build-deps/third-party/FFmpeg/x265_git
   cmake -B build_dir -S source -W no-dev -G Ninja \
     -DCMAKE_INSTALL_PREFIX="$_stage_dir" \
     -DCMAKE_BUILD_TYPE=Release \
@@ -193,11 +198,11 @@ build() {
   cmake --build build_dir
   cmake --install build_dir
   
-  cd $srcdir/build-deps/ffmpeg_sources/nv-codec-headers
+  cd $srcdir/build-deps/third-party/FFmpeg/nv-codec-headers
   sed -i 's/PREFIX =/PREFIX ?=/g' Makefile
   PREFIX=$_stage_dir make install
 
-  cd $srcdir/build-deps/ffmpeg_sources/ffmpeg
+  cd $srcdir/build-deps/third-party/FFmpeg/FFmpeg
   ./configure \
     --disable-all \
     --disable-autodetect \
