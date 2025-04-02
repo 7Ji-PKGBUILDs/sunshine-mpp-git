@@ -157,6 +157,7 @@ build() {
   export CFLAGS="${CFLAGS/-Werror=format-security/}"
   export CXXFLAGS="${CXXFLAGS/-Werror=format-security/}"
   export PKG_CONFIG_PATH=$_stage_dir/lib/pkgconfig
+  export CMAKE_POLICY_VERSION_MINIMUM="3.5"
 
   cd $srcdir/build-deps
   cmake -B build_dir -S . -W no-dev -G Ninja \
