@@ -1,15 +1,12 @@
 # Maintainer: Grey Christoforo <first name at last name dot net>
 
-_sunshine_base=ceea97479b81a813dc6185e642f20bceca055087
+_sunshine_base=26e5f2f610cf6c33ed1acf0b67c2fb8d1f383a18
 _sunshine_branch=mpp
-_ffmpeg_base=ac494b8325cc9612a382e9762e1f4c7819009c0c
-_ffmpeg_branch=7.1
-
 pkgname=sunshine-mpp-git
-pkgver=r2655.ceea9747
+pkgver=r2845.26e5f2f6
 pkgrel=1
 pkgdesc="Game Stream server for Moonlight, latest git"
-arch=('x86_64' 'aarch64')
+arch=('aarch64')
 url=https://github.com/LizardByte/Sunshine
 license=('GPL3')
 install=sunshine-mpp-git.install
@@ -57,55 +54,11 @@ conflicts=(sunshine sunshine-git sunshine-bin)
 
 source=(
 "git+https://github.com/LizardByte/Sunshine.git"
-git+https://github.com/flatpak/flatpak-builder-tools.git
-git+https://github.com/flathub/shared-modules
-"git+https://github.com/LizardByte/build-deps.git"
-git+https://github.com/LizardByte/doxyconfig.git
-git+https://github.com/google/googletest
-git+https://github.com/games-on-whales/inputtino.git
-git+https://github.com/moonlight-stream/moonlight-common-c.git
-git+https://github.com/sleepybishop/nanors.git
-git+https://github.com/FFmpeg/nv-codec-headers
-git+https://github.com/LizardByte/nvapi-open-source-sdk
-git+https://gitlab.com/eidheim/Simple-Web-Server.git
-git+https://github.com/michaeltyson/TPCircularBuffer.git
-git+https://github.com/LizardByte/tray
-git+https://github.com/LizardByte/Virtual-Gamepad-Emulation-Client.git
-git+https://gitlab.freedesktop.org/wayland/wayland-protocols.git
-git+https://gitlab.freedesktop.org/wlroots/wlr-protocols.git
-git+https://github.com/cgutman/enet.git
-git+https://github.com/FFmpeg/FFmpeg.git
-git+https://github.com/GPUOpen-LibrariesAndSDKs/AMF
-git+https://code.videolan.org/videolan/x264.git
-git+https://bitbucket.org/multicoreware/x265_git.git
-git+https://gitlab.com/AOMediaCodec/SVT-AV1.git
-sunshine-mpp.patch::https://github.com/hbiyik/Sunshine/compare/${_sunshine_base}...${_sunshine_branch}.patch
-ffmpeg-mpp.patch::https://github.com/nyanmisaka/ffmpeg-rockchip/compare/${_ffmpeg_base}...${_ffmpeg_branch}.patch
+"git+https://github.com/nyanmisaka/ffmpeg-rockchip.git#branch=7.1"
+ mpp.patch::https://github.com/hbiyik/Sunshine/compare/${_sunshine_base}...${_sunshine_branch}.patch
 )
 
 sha256sums=('SKIP'
-            'SKIP'
-            'SKIP'
-            'SKIP'
-            'SKIP'
-            'SKIP'
-            'SKIP'
-            'SKIP'
-            'SKIP'
-            'SKIP'
-            'SKIP'
-            'SKIP'
-            'SKIP'
-            'SKIP'
-            'SKIP'
-            'SKIP'
-            'SKIP'
-            'SKIP'
-            'SKIP'
-            'SKIP'
-            'SKIP'
-            'SKIP'
-            'SKIP'
             'SKIP'
             'SKIP')
 
@@ -115,104 +68,26 @@ pkgver() {
 }
 
 prepare() {
-  cd $srcdir/build-deps
-  git config submodule.third-party/FFmpeg/FFmpeg.url "${srcdir}/FFmpeg"
-  git config submodule.third-party/FFmpeg/AMF.url "${srcdir}/AMF"
-  git config submodule.third-party/FFmpeg/SVT-AV1.url "${srcdir}/SVT-AV1"
-  git config submodule.third-party/FFmpeg/nv-codec-headers.url "${srcdir}/nv-codec-headers"
-  git config submodule.third-party/FFmpeg/x264.url "${srcdir}/x264"
-  git config submodule.third-party/FFmpeg/x265_git.url "${srcdir}/x265_git"        
-  git -c protocol.file.allow=always submodule init 
-  git -c protocol.file.allow=always submodule update -f
-  git submodule foreach git clean -df
-  patch -p1 -N -d $srcdir/build-deps/third-party/FFmpeg/FFmpeg -i ${srcdir}/ffmpeg-mpp.patch
-  
   cd $srcdir/Sunshine
-  git rm third-party/build-deps -f
-  rm -rf third-party/build-deps
-  git config submodule.third-party/flatpak-builder-tools.url "${srcdir}/flatpak-builder-tools"
-  git config submodule.third-party/shared-modules.url "${srcdir}/shared-modules"
-  git config submodule.third-party/doxyconfig.url "${srcdir}/doxyconfig"
-  git config submodule.third-party/googletest.url "${srcdir}/googletest"
-  git config submodule.third-party/inputtino.url "${srcdir}/inputtino"
-  git config submodule.third-party/moonlight-common-c.url "${srcdir}/moonlight-common-c"
-  git config submodule.third-party/tray.url "${srcdir}/tray"
-  git config submodule.third-party/Virtual-Gamepad-Emulation-Client.url "${srcdir}/Virtual-Gamepad-Emulation-Client"
-  git config submodule.third-party/wayland-protocols.url "${srcdir}/wayland-protocols"
-  git config submodule.third-party/wlr-protocols.url "${srcdir}/wlr-protocols"
-  git -c protocol.file.allow=always submodule init
-  git -c protocol.file.allow=always submodule update -f
-  patch -p1 -N -i ../sunshine-mpp.patch
-
-  cd $srcdir/Sunshine/third-party/moonlight-common-c
-  git config submodule.enet.url "${srcdir}/enet"
-  git -c protocol.file.allow=always submodule init
-  git -c protocol.file.allow=always submodule update -f
+  git submodule update --init --recursive --depth=1 --jobs=4 -f
+  patch -p1 -N -i ../mpp.patch
 }
 
 build() {
-  _stage_dir=$srcdir/build-deps/staging
-  mkdir -p $_stage_dir/include/AMF
-
-  export CFLAGS="${CFLAGS/-Werror=format-security/}"
-  export CXXFLAGS="${CXXFLAGS/-Werror=format-security/}"
-  export PKG_CONFIG_PATH=$_stage_dir/lib/pkgconfig
-  export CMAKE_POLICY_VERSION_MINIMUM="3.5"
-
-  cd $srcdir/build-deps
-  cmake -B build_dir -S . -W no-dev -G Ninja \
-    -D CMAKE_C_COMPILER=$(which gcc) \
-    -D CMAKE_CXX_COMPILER=$(which g++) \
-    -D CMAKE_AR=$(which ar) \
-    -D CMAKE_RANLIB=$(which ranlib) \
-    -D CMAKE_INSTALL_PREFIX=$_stage_dir
-  cmake --build build_dir
-  cmake --install build_dir
-
-  cp -av "$srcdir/build-deps/third-party/FFmpeg/AMF/amf/public/include/." "$_stage_dir/include/AMF"
+  _stage_dir=$srcdir/Sunshine/third-party/build-deps/dist/Linux-aarch64
+  export PKG_CONFIG_PATH="${_stage_dir}/lib/pkgconfig"
+  sed -i -E "s|prefix\=.+|prefix\=$_stage_dir|" ${PKG_CONFIG_PATH}/*.pc
+  cp $PKG_CONFIG_PATH/x265.pc $PKG_CONFIG_PATH/x264.pc
+  sed -i -E "s|x265|x264|" ${PKG_CONFIG_PATH}/x264.pc
   
-  cd $srcdir/build-deps/third-party/FFmpeg/SVT-AV1
-  cmake -B build_dir -S . -W no-dev -G Ninja \
-    -DCMAKE_INSTALL_PREFIX="$_stage_dir" \
-    -DCMAKE_BUILD_TYPE=Release \
-    -DBUILD_APPS=OFF \
-    -DBUILD_DEC=OFF \
-    -DENABLE_AVX512=ON \
-    -DBUILD_SHARED_LIBS=OFF
-  cmake --build build_dir
-  cmake --install build_dir
-  
-  cd $srcdir/build-deps/third-party/FFmpeg/x264
-  ./configure \
-    --prefix="$_stage_dir" \
-    --disable-cli \
-    --enable-static
-  make install
-  
-  cd $srcdir/build-deps/third-party/FFmpeg/x265_git
-  cmake -B build_dir -S source -W no-dev -G Ninja \
-    -DCMAKE_INSTALL_PREFIX="$_stage_dir" \
-    -DCMAKE_BUILD_TYPE=Release \
-    -DENABLE_CLI=OFF \
-    -DENABLE_SHARED=OFF \
-    -DSTATIC_LINK_CRT=ON
-  cmake --build build_dir
-  cmake --install build_dir
-  
-  cd $srcdir/build-deps/third-party/FFmpeg/nv-codec-headers
-  sed -i 's/PREFIX =/PREFIX ?=/g' Makefile
-  PREFIX=$_stage_dir make install
 
-  cd $srcdir/build-deps/third-party/FFmpeg/FFmpeg
+  cd $srcdir/ffmpeg-rockchip
   ./configure \
     --disable-all \
     --disable-autodetect \
     --disable-iconv \
     --enable-amf \
-    --enable-cuda \
-    --enable-cuda_llvm \
     --enable-encoder=h264_amf,hevc_amf,av1_amf \
-    --enable-encoder=h264_nvenc,hevc_nvenc,av1_nvenc \
     --enable-encoder=h264_vaapi,hevc_vaapi,av1_vaapi \
     --enable-encoder=h264_rkmpp,hevc_rkmpp \
     --enable-encoder=h264_v4l2m2m \
@@ -222,8 +97,6 @@ build() {
     --enable-libx264 \
     --enable-libx265 \
     --enable-vaapi \
-    --enable-ffnvcodec \
-    --enable-nvenc \
     --enable-v4l2_m2m \
     --enable-rkmpp \
     --enable-version3 \
