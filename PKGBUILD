@@ -3,13 +3,14 @@
 _sunshine_base=26e5f2f610cf6c33ed1acf0b67c2fb8d1f383a18
 _sunshine_branch=mpp
 pkgname=sunshine-mpp-git
-pkgver=r2845.26e5f2f6
+pkgver=r2952.7c6e43fb
 pkgrel=1
 pkgdesc="Game Stream server for Moonlight, latest git"
-arch=('aarch64')
+arch=('aarch64' 'x86_64')
 url=https://github.com/LizardByte/Sunshine
 license=('GPL3')
 install=sunshine-mpp-git.install
+options=(!lto)
 
 depends=(
 avahi
@@ -43,6 +44,8 @@ nodejs
 npm
 clang
 )
+makedepends_x86_64=("nasm")
+
 optdepends=(
 'cuda: NvFBC capture support'
 'libcap'
@@ -74,7 +77,7 @@ prepare() {
 }
 
 build() {
-  _stage_dir=$srcdir/Sunshine/third-party/build-deps/dist/Linux-aarch64
+  _stage_dir=$srcdir/Sunshine/third-party/build-deps/dist/Linux-${CARCH}
   export PKG_CONFIG_PATH="${_stage_dir}/lib/pkgconfig"
   sed -i -E "s|prefix\=.+|prefix\=$_stage_dir|" ${PKG_CONFIG_PATH}/*.pc
   cp $PKG_CONFIG_PATH/x265.pc $PKG_CONFIG_PATH/x264.pc
