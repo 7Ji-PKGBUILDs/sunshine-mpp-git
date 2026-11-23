@@ -1,6 +1,6 @@
 # Maintainer: Grey Christoforo <first name at last name dot net>
 
-_sunshine_base=26e5f2f610cf6c33ed1acf0b67c2fb8d1f383a18
+_sunshine_base=433c876056c36f762428921a8b0a7760afe3911f
 _sunshine_branch=mpp
 pkgname=sunshine-mpp-git
 pkgver=r2952.7c6e43fb
